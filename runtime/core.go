@@ -807,7 +807,7 @@ func StartThread(callable *Object) {
 		defer atomic.AddInt64(&ThreadCount, -1)
 		f := NewRootFrame()
 		_, raised := callable.Call(f, nil, nil)
-		if raised != nil {
+		if raised != nil && !raised.isInstance(SystemExitType) {
 			Stderr.writeString(FormatExc(f))
 		}
 	}()

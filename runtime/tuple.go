@@ -212,6 +212,26 @@ func tupleGT(f *Frame, v, w *Object) (*Object, *BaseException) {
 	return tupleCompare(f, toTupleUnsafe(v), w, GT)
 }
 
+func tupleHash(f *Frame, o *Object) (*Object, *BaseException) {
+	t := toTupleUnsafe(o)
+	l := len(t.elems)
+	mult := 1000003
+	x := 0x345678
+	for i, elem := range t.elems {
+		y, raised := Hash(f, elem)
+		if raised != nil {
+			return nil, raised
+		}
+		x = (x ^ y.Value()) * mult
+		mult += 82520 + (l - i - 1) * 2
+	}
+	x += 97531
+	if x == -1 {
+		x = -2
+	}
+	return NewInt(x).ToObject(), nil
+}
+
 func tupleIter(f *Frame, o *Object) (*Object, *BaseException) {
 	return newSliceIterator(reflect.ValueOf(toTupleUnsafe(o).elems)), nil
 }
@@ -295,6 +315,7 @@ func initTupleType(dict map[string]*Object) {
 	TupleType.slots.GE = &binaryOpSlot{tupleGE}
 	TupleType.slots.GetItem = &binaryOpSlot{tupleGetItem}
 	TupleType.slots.GT = &binaryOpSlot{tupleGT}
+	TupleType.slots.Hash = &unaryOpSlot{tupleHash}
 	TupleType.slots.Iter = &unaryOpSlot{tupleIter}
 	TupleType.slots.LE = &binaryOpSlot{tupleLE}
 	TupleType.slots.Len = &unaryOpSlot{tupleLen}

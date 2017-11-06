@@ -5,6 +5,10 @@ class error(Exception):
   pass
 
 
+def exit():
+  raise SystemExit
+
+
 def get_ident():
   f = __frame__()
   while f.f_back:

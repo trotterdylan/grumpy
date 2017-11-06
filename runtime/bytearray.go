@@ -101,9 +101,13 @@ func byteArrayInit(f *Frame, o *Object, args Args, _ KWArgs) (*Object, *BaseExce
 	if raised := checkFunctionArgs(f, "__init__", args, IntType); raised != nil {
 		return nil, raised
 	}
+	l := toIntUnsafe(args[0]).Value()
+	if l < 0 {
+		return nil, f.RaiseType(ValueErrorType, "negative count")
+	}
 	a := toByteArrayUnsafe(o)
 	a.mutex.Lock()
-	a.value = make([]byte, toIntUnsafe(args[0]).Value())
+	a.value = make([]byte, l)
 	a.mutex.Unlock()
 	return None, nil
 }
